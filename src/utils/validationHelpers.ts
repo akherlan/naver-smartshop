@@ -45,7 +45,7 @@ export const VALIDATION_MESSAGES = {
   NAVER_URL_REQUIRED: "URL must be from Naver Smartstore",
   PRODUCT_ID_REQUIRED: "Product ID is required",
   PRODUCT_NOT_FOUND: "Product not found",
-  SCRAPING_BLOCKED: "Access to product page was blocked",
+  NAVER_ACCESS_BLOCKED: "Access to product page was blocked",
 
   // Korean messages
   REQUIRED_KO: "필수 입력 항목입니다",

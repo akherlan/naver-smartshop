@@ -5,7 +5,7 @@ import { logInfo, logError, logWarning } from "../../middleware/logger";
 
 export { NaverProductData } from "./components/ProductParser";
 
-export interface ScrapingOptions {
+export interface NaverOptions {
   fetchOptions?: FetchOptions;
   parseOptions?: ParseOptions;
   establishSession?: boolean;
@@ -38,7 +38,7 @@ export class NaverScraper {
   /**
    * Main method to scrape product data from Naver Smartstore
    */
-  async scrapeProduct(url: string, options: ScrapingOptions = {}): Promise<NaverProductData> {
+  async scrapeProduct(url: string, options: NaverOptions = {}): Promise<NaverProductData> {
     const {
       fetchOptions = {},
       parseOptions = {},
@@ -106,7 +106,7 @@ export class NaverScraper {
    */
   async scrapeMultipleProducts(
     urls: string[],
-    options: ScrapingOptions & { delayBetweenRequests?: number } = {}
+    options: NaverOptions & { delayBetweenRequests?: number } = {}
   ): Promise<{ success: NaverProductData[]; failed: { url: string; error: string }[] }> {
     const { delayBetweenRequests = 3000 } = options;
     const success: NaverProductData[] = [];
@@ -232,7 +232,7 @@ export class NaverScraper {
   /**
    * Static method for backward compatibility
    */
-  static async scrapeProduct(url: string, options: ScrapingOptions = {}): Promise<NaverProductData> {
+  static async scrapeProduct(url: string, options: NaverOptions = {}): Promise<NaverProductData> {
     const scraper = new NaverScraper();
     return scraper.scrapeProduct(url, options);
   }

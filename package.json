@@ -10,11 +10,9 @@
     "clean": "rm -rf dist"
   },
   "keywords": [
-    "rest-api",
-    "product-details",
-    "naver-smartstore",
-    "typescript",
-    "express"
+    "product",
+    "naver-shopping",
+    "smartstore"
   ],
   "author": "",
   "license": "MIT",

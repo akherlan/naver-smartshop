@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { NaverScraper, ScrapingOptions } from '../services/scraping/naverScraper';
+import { NaverScraper, NaverOptions } from '../services/naver/naverScraper';
 import { AppError } from '../middleware/errorHandler';
 import { logInfo, logError } from '../middleware/logger';
 
@@ -28,8 +28,8 @@ router.get('/naver', async (req: Request, res: Response, next: NextFunction) => 
 
     logInfo(`Processing request for product URL: ${productUrl}`);
 
-    // Configure scraping options
-    const scrapingOptions: ScrapingOptions = {
+    // Configure naver options
+    const naverOptions: NaverOptions = {
       fetchOptions: {
         timeout: 15000,
         retries: 2,
@@ -44,7 +44,7 @@ router.get('/naver', async (req: Request, res: Response, next: NextFunction) => 
     };
 
     // Scrape product data
-    const productData = await scraper.scrapeProduct(productUrl, scrapingOptions);
+    const productData = await scraper.scrapeProduct(productUrl, naverOptions);
 
     // Return success response
     res.status(200).json({
