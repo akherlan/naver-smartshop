@@ -114,7 +114,7 @@ router.get('/naver/validate', (req: Request, res: Response, next: NextFunction) 
  * GET /naver/health
  * Health check endpoint for the Naver scraping service
  */
-router.get('/naver/health', async (req: Request, res: Response) => {
+router.get('/naver/health', async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Test scraper connection
     const connectionTest = await scraper.testConnection();
@@ -141,13 +141,7 @@ router.get('/naver/health', async (req: Request, res: Response) => {
       supportedUrlFormat: 'https://smartstore.naver.com/<brandUsername>/products/<productId>',
     });
   } catch (error) {
-    res.status(503).json({
-      success: false,
-      service: 'Naver Smartstore Scraper',
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: 'Health check failed'
-    });
+    next(error);
   }
 });
 

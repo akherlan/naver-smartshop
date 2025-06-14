@@ -55,6 +55,7 @@ export const logger = (
     // Log detailed info for errors
     if (logData.statusCode >= 400) {
       console.log(`  └─ User-Agent: ${logData.userAgent || "Unknown"}`);
+      console.log(`  └─ Error Response: ${logData.statusCode >= 500 ? 'Server Error' : 'Client Error'}`);
     }
 
     // Call original end method and return its result
@@ -65,13 +66,44 @@ export const logger = (
 };
 
 export const logInfo = (message: string, data?: any): void => {
-  console.log(`${new Date().toISOString()} [INFO] ${message}`, data || "");
+  const timestamp = new Date().toISOString();
+  console.log(`${timestamp} [INFO] ${message}`);
+
+  if (data) {
+    if (typeof data === 'object') {
+      console.log(`  └─ Details:`, JSON.stringify(data, null, 2));
+    } else {
+      console.log(`  └─ Details: ${data}`);
+    }
+  }
 };
 
 export const logError = (message: string, error?: any): void => {
-  console.error(`${new Date().toISOString()} [ERROR] ${message}`, error || "");
+  const timestamp = new Date().toISOString();
+  console.error(`${timestamp} [ERROR] ${message}`);
+
+  if (error) {
+    if (error instanceof Error) {
+      console.error(`  └─ Error: ${error.message}`);
+      console.error(`  └─ Stack: ${error.stack}`);
+      if (error.name) console.error(`  └─ Type: ${error.name}`);
+    } else if (typeof error === 'object') {
+      console.error(`  └─ Details:`, JSON.stringify(error, null, 2));
+    } else {
+      console.error(`  └─ Details: ${error}`);
+    }
+  }
 };
 
 export const logWarning = (message: string, data?: any): void => {
-  console.warn(`${new Date().toISOString()} [WARN] ${message}`, data || "");
+  const timestamp = new Date().toISOString();
+  console.warn(`${timestamp} [WARN] ${message}`);
+
+  if (data) {
+    if (typeof data === 'object') {
+      console.warn(`  └─ Details:`, JSON.stringify(data, null, 2));
+    } else {
+      console.warn(`  └─ Details: ${data}`);
+    }
+  }
 };

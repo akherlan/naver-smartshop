@@ -42,18 +42,27 @@ export const errorHandler = (
     message = "Request timeout";
   }
 
-  // Log error details
-  console.error(`[ERROR] ${req.method} ${req.path}`, {
-    error: error.message,
-    stack: error.stack,
+  // Log comprehensive error details on server (including stack trace)
+  console.error(`[ERROR] ${req.method} ${req.path} - ${statusCode}`, {
+    message: error.message,
     statusCode,
+    stack: error.stack,
+    errorName: error.name,
+    errorCode: error.code,
+    isOperational: error.isOperational,
     timestamp: new Date().toISOString(),
-    ip: req.ip,
-    userAgent: req.get("User-Agent"),
+    requestInfo: {
+      ip: req.ip || req.connection.remoteAddress || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      body: req.body && Object.keys(req.body).length > 0 ? req.body : undefined,
+      query: req.query && Object.keys(req.query).length > 0 ? req.query : undefined,
+      params: req.params && Object.keys(req.params).length > 0 ? req.params : undefined,
+    },
   });
 
-  // Send error response
+  // Send clean error response (no stack traces or sensitive details)
   res.status(statusCode).json({
+    success: false,
     error: {
       message,
       statusCode,
@@ -61,9 +70,5 @@ export const errorHandler = (
       path: req.path,
       method: req.method,
     },
-    ...(process.env.NODE_ENV === "development" && {
-      stack: error.stack,
-      details: error,
-    }),
   });
 };
