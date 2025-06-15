@@ -1,9 +1,18 @@
-import { ProductFetcher, FetchOptions, FetchResult } from "./components/ProductFetcher";
-import { ProductParser, NaverProductData, ParseOptions } from "./components/ProductParser";
+import {
+  ProductFetcher,
+  FetchOptions,
+  FetchResult,
+} from "./components/fetcher";
+import { StealthBrowser } from "./components/stealth";
+import {
+  ProductParser,
+  NaverProductData,
+  ParseOptions,
+} from "./components/parser";
 import { AppError } from "../../middleware/errorHandler";
 import { logInfo, logError, logWarning } from "../../middleware/logger";
 
-export { NaverProductData } from "./components/ProductParser";
+export { NaverProductData } from "./components/parser";
 
 export interface NaverOptions {
   fetchOptions?: FetchOptions;
@@ -38,11 +47,14 @@ export class NaverScraper {
   /**
    * Main method to scrape product data from Naver Smartstore
    */
-  async scrapeProduct(url: string, options: NaverOptions = {}): Promise<NaverProductData> {
+  async scrapeProduct(
+    url: string,
+    options: NaverOptions = {},
+  ): Promise<NaverProductData> {
     const {
       fetchOptions = {},
       parseOptions = {},
-      establishSession = false
+      establishSession = false,
     } = options;
 
     try {
@@ -65,7 +77,10 @@ export class NaverScraper {
       }
 
       // Fetch the product page
-      const fetchResult: FetchResult = await this.fetcher.fetchProductPage(url, fetchOptions);
+      const fetchResult: FetchResult = await this.fetcher.fetchProductPage(
+        url,
+        fetchOptions,
+      );
 
       // Check for potential blocking or captcha
       if (this.isContentBlocked(fetchResult.data)) {
@@ -74,7 +89,11 @@ export class NaverScraper {
       }
 
       // Parse product data from HTML
-      const productData = ProductParser.parseProductData(fetchResult.data, url, parseOptions);
+      const productData = ProductParser.parseProductData(
+        fetchResult.data,
+        url,
+        parseOptions,
+      );
 
       // Validate the extracted data
       ProductParser.validateProductData(productData);
@@ -82,16 +101,21 @@ export class NaverScraper {
       logInfo(`Successfully scraped product: ${productData.title}`);
 
       return productData;
-
     } catch (error) {
       if (error instanceof AppError) {
         // Log specific error types for monitoring
         if (error.statusCode === 429) {
-          logWarning("Rate limited by Naver - consider implementing delays between requests");
+          logWarning(
+            "Rate limited by Naver - consider implementing delays between requests",
+          );
         } else if (error.statusCode === 404) {
-          logWarning("Product not found - URL may be invalid or product may be removed");
+          logWarning(
+            "Product not found - URL may be invalid or product may be removed",
+          );
         } else if (error.statusCode === 403) {
-          logWarning("Access forbidden - possible bot detection or IP blocking");
+          logWarning(
+            "Access forbidden - possible bot detection or IP blocking",
+          );
         }
         throw error;
       }
@@ -106,8 +130,11 @@ export class NaverScraper {
    */
   async scrapeMultipleProducts(
     urls: string[],
-    options: NaverOptions & { delayBetweenRequests?: number } = {}
-  ): Promise<{ success: NaverProductData[]; failed: { url: string; error: string }[] }> {
+    options: NaverOptions & { delayBetweenRequests?: number } = {},
+  ): Promise<{
+    success: NaverProductData[];
+    failed: { url: string; error: string }[];
+  }> {
     const { delayBetweenRequests = 3000 } = options;
     const success: NaverProductData[] = [];
     const failed: { url: string; error: string }[] = [];
@@ -129,9 +156,9 @@ export class NaverScraper {
           logInfo(`Waiting ${delayBetweenRequests}ms before next request...`);
           await this.delay(delayBetweenRequests);
         }
-
       } catch (error: any) {
-        const errorMessage = error instanceof AppError ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof AppError ? error.message : "Unknown error";
         logError(`Failed to scrape ${url}:`, errorMessage);
         failed.push({ url, error: errorMessage });
 
@@ -144,9 +171,18 @@ export class NaverScraper {
       }
     }
 
-    logInfo(`Batch scraping completed. Success: ${success.length}, Failed: ${failed.length}`);
+    logInfo(
+      `Batch scraping completed. Success: ${success.length}, Failed: ${failed.length}`,
+    );
 
     return { success, failed };
+  }
+
+  async scrapeUsingBrowser(url: string) {
+    const client = new StealthBrowser();
+    const res = await client.listenTo(url);
+    console.log(res);
+    // await client.close();
   }
 
   /**
@@ -154,27 +190,29 @@ export class NaverScraper {
    */
   private isContentBlocked(html: string): boolean {
     const blockingIndicators = [
-      'captcha',
-      'blocked',
-      'access denied',
-      'robot',
-      'bot detection',
-      'too many requests',
-      '차단',
-      '접근 제한',
-      '로봇'
+      "captcha",
+      "blocked",
+      "access denied",
+      "robot",
+      "bot detection",
+      "too many requests",
+      "차단",
+      "접근 제한",
+      "로봇",
     ];
 
     const lowerHtml = html.toLowerCase();
-    return blockingIndicators.some(indicator => lowerHtml.includes(indicator)) ||
-           html.length < 1000; // Suspiciously short response
+    return (
+      blockingIndicators.some((indicator) => lowerHtml.includes(indicator)) ||
+      html.length < 1000
+    ); // Suspiciously short response
   }
 
   /**
    * Utility method for delays
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -188,7 +226,7 @@ export class NaverScraper {
     const stats = this.fetcher.getStats();
     return {
       ...stats,
-      isReady: true
+      isReady: true,
     };
   }
 
@@ -208,7 +246,7 @@ export class NaverScraper {
       return {
         success: true,
         status: 200,
-        message: "Connection to Naver SmartStore successful"
+        message: "Connection to Naver SmartStore successful",
       };
     } catch (error: any) {
       logError("Connection test failed:", error);
@@ -224,7 +262,7 @@ export class NaverScraper {
       return {
         success: false,
         status,
-        message
+        message,
       };
     }
   }
@@ -232,7 +270,10 @@ export class NaverScraper {
   /**
    * Static method for backward compatibility
    */
-  static async scrapeProduct(url: string, options: NaverOptions = {}): Promise<NaverProductData> {
+  static async scrapeProduct(
+    url: string,
+    options: NaverOptions = {},
+  ): Promise<NaverProductData> {
     const scraper = new NaverScraper();
     return scraper.scrapeProduct(url, options);
   }
