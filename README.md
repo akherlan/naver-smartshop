@@ -25,5 +25,5 @@ npm run build
 Start API server:
 
 ```bash
-npm start
+npm run start
 ```
