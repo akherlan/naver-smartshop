@@ -1,12 +1,12 @@
 # Naver Smartstore
 
-| This work is not complete and is still in progress.
-
-Todo:
-
-- [ ] bypass Naver's Captcha
+> ⚠️ This work is not complete and is still in progress.
 
 A REST API service for extracting product data from Naver Smartstore pages, providing product detail including coupons/benefits.
+
+## Todo
+
+- [ ] bypass Naver's Captcha
 
 ## Usage
 
